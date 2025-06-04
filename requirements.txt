@@ -1,0 +1,6 @@
+beautifulsoup4
+black
+isort
+pandas
+pytest
+requests
