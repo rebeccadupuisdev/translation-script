@@ -4,3 +4,4 @@ isort
 pandas
 pytest
 requests
+pydub

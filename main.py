@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from pydub import AudioSegment
 
 INPUT_CSV = "irish_words.csv"
 OUTPUT_CSV = "irish_words_with_definitions.csv"
@@ -41,6 +42,12 @@ def fetch_word_audio(word):
     if audio_response.status_code == 200:
         with open(audio_path, "wb") as f:
             f.write(audio_response.content)
+
+        # Add 1 second of silence because Anki cuts the end of the audio :(
+        audio = AudioSegment.from_file(audio_path)
+        silence = AudioSegment.silent(duration=1000)  # 1 second of silence
+        audio_with_silence = audio + silence
+        audio_with_silence.export(audio_path, format="mp3")  # Overwrite original
     else:
         audio_filename = "Not found"
 
