@@ -163,3 +163,4 @@ cython_debug/
 audio_files/
 irish_words.csv
 irish_words_with_definitions.csv
+missing_words.csv

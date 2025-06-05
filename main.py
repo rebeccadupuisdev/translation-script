@@ -8,6 +8,7 @@ from pydub import AudioSegment
 
 INPUT_CSV = "irish_words.csv"
 OUTPUT_CSV = "irish_words_with_definitions.csv"
+MISSING_CSV = "missing_words.csv"
 AUDIO_DIR = "audio_files"
 BASE_URL = "https://www.teanglann.ie/en/fgb/"
 AUDIO_URL = "https://www.teanglann.ie/CanC/"
@@ -39,17 +40,18 @@ def fetch_word_audio(word):
     audio_path = os.path.join(AUDIO_DIR, audio_filename)
 
     audio_response = requests.get(audio_url)
-    if audio_response.status_code == 200:
-        with open(audio_path, "wb") as f:
-            f.write(audio_response.content)
 
-        # Add 1 second of silence because Anki cuts the end of the audio :(
-        audio = AudioSegment.from_file(audio_path)
-        silence = AudioSegment.silent(duration=1000)  # 1 second of silence
-        audio_with_silence = audio + silence
-        audio_with_silence.export(audio_path, format="mp3")  # Overwrite original
-    else:
-        audio_filename = "Not found"
+    if audio_response.status_code != 200:
+        return None
+
+    with open(audio_path, "wb") as f:
+        f.write(audio_response.content)
+
+    # Add 1 second of silence because Anki cuts the end of the audio :(
+    audio = AudioSegment.from_file(audio_path)
+    silence = AudioSegment.silent(duration=1000)  # 1 second of silence
+    audio_with_silence = audio + silence
+    audio_with_silence.export(audio_path, format="mp3")  # Overwrite original
 
     return audio_filename
 
@@ -63,21 +65,44 @@ def process_csv(input_csv):
     words = [str(word).strip() for word in df["word"]]
 
     results = []
+    missing_data = []
+
     for word in words:
         print(f"Processing: {word}")
         time.sleep(1)
         translation = fetch_word_data(word)
         audio_filename = fetch_word_audio(word)
-        results.append(
-            {
-                "word": f"{word} [sound:{audio_filename}]",
-                "translation": translation,
-            }
-        )
+
+        if translation and audio_filename:
+            results.append(
+                {
+                    "word": f"{word} [sound:{audio_filename}]",
+                    "translation": translation,
+                }
+            )
+        else:
+            missing_data.append(
+                {
+                    "word": word,
+                    "missing translation": (
+                        "yes" if translation is None else translation
+                    ),
+                    "missing audio": (
+                        "yes" if audio_filename is None else audio_filename
+                    ),
+                }
+            )
 
     pd.DataFrame(results).to_csv(OUTPUT_CSV, index=False)
+
     print()
     print(f"Done! Go check {OUTPUT_CSV}")
+
+    if missing_data:
+        pd.DataFrame(missing_data).to_csv(MISSING_CSV, index=False)
+        print(f"Missing data saved to {MISSING_CSV}")
+    else:
+        print("No missing data found!")
 
 
 if __name__ == "__main__":
