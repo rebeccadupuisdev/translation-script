@@ -5,3 +5,5 @@ pandas
 pytest
 requests
 pydub
+openai
+dotenv
