@@ -81,7 +81,8 @@ def get_simple_definition(word):
             temperature=0.3,
             max_tokens=150,
         )
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        return content.strip() if content else None
     except Exception as e:
         print(f"Error for word {word}: {e}")
         return None
