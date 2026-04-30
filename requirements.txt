@@ -1,9 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
 beautifulsoup4
-black
-isort
-pandas
-pytest
 requests
 pydub
 openai
-dotenv
+python-dotenv
+pandas
+black
+isort
+pytest

@@ -1,11 +1,33 @@
-# Irish -> English Translation Script
+# Irish Learning Cards API
 
-### How to use
+FastAPI integrating an NLP pipeline (scraping, LLM, audio) for generating Anki-ready learning cards from Irish words.
 
-Create a CSV with the Irish words to translate in a column named 'word'
+## Architecture
 
-Run this command in terminal -> `python main.py`
+```
+app/
+├── main.py            # FastAPI entry point
+├── config.py          # Environment variables & constants
+├── models.py          # Pydantic request/response schemas
+├── pipeline/
+│   ├── scraper.py     # Scrape translations from teanglann.ie
+│   ├── llm.py         # Generate definitions via OpenAI
+│   └── audio.py       # Download & post-process audio files
+└── routes/
+    └── cards.py       # POST /cards, GET /cards/{word}, GET /cards/audio/{word}
+```
 
-Check *`missing_words.csv`* for unprocessed words
+## Setup
 
-Upload *`irish_words_with_definitions.csv`* to Anki
+```bash
+pip install -r requirements.txt
+cp .env.example .env   # add your OPENAI_API_KEY
+```
+
+## Run
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Docs available at `http://localhost:8000/docs`
