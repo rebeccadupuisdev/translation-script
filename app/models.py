@@ -1,22 +1,22 @@
-from typing import Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
 
 class CardRequest(BaseModel):
-    words: list[str]
+    words: List[str]
 
 
 class CardResult(BaseModel):
     word: str
-    translation: str | None
-    definition: str | None
-    audio_filename: str | None
+    translation: Optional[str]
+    definition: Optional[str]
+    audio_filename: Optional[str]
     status: Literal["ok", "missing"]
 
 
 class CardResponse(BaseModel):
-    results: list[CardResult]
+    results: List[CardResult]
     total: int
     ok_count: int
     missing_count: int
